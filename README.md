@@ -1,4 +1,7 @@
-# Quorthon
-Quorthon is a self-hosted encrypted chat platform built with Rust and Tauri.  
-Provides real-time messaging and voice communication without requiring traditional user accounts, 
-instead the app automatically creates a secure identity for each server you connect to, allowing you to join chat sessions without creating an account.
+# Tauri + React + Typescript
+
+This template should help get you started developing with Tauri, React and Typescript in Vite.
+
+## Recommended IDE Setup
+
+- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
