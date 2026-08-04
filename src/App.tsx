@@ -1,51 +1,104 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
+import { useState, useEffect } from "react";
+import ServersPage from "./pages/ServersPage";
+import NicknamePage from "./pages/NicknamePage";
+import SessionsPage from "./pages/SessionsPage";
+import ChatPage from "./pages/ChatPage";
+import SettingsPage from "./pages/SettingsPage";
+import { getSavedNickname } from "./services/localServices/NicknameService";
+import { loadTheme, loadFont } from "./services/localServices/AppearanceService";
 import "./App.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+type Page =
+  | { name: "servers" }
+  | { name: "nickname" }
+  | { name: "sessions"; nickname: string }
+  | { name: "chat"; sessionName: string; sessionKey: string; nickname: string }
+  | { name: "settings"; nickname: string };
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+// apply saved appearance on startup (replaces v1's loadAllSettings)
+document.documentElement.setAttribute("data-theme", loadTheme());
+document.documentElement.setAttribute("data-font", loadFont());
+
+function App() {
+  const [page, setPage] = useState<Page>({ name: "servers" });
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        stream.getTracks().forEach((track) => track.stop());
+      })
+      .catch(async () => {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("reset_mic_permission").catch(() => {});
+      });
+  }, []);
+
+  useEffect(() => {
+    const disableContext = (e: MouseEvent) => e.preventDefault();
+    const disableShortcuts = (e: KeyboardEvent) => {
+      if (
+        e.key === "F5" || e.key === "F7" || e.key === "F3" ||
+        (e.ctrlKey && e.key === "r") ||
+        (e.ctrlKey && e.shiftKey && e.key === "R") ||
+        (e.ctrlKey && e.key === "p") ||
+        (e.ctrlKey && e.key === "s") ||
+        (e.ctrlKey && e.key === "u") ||
+        (e.ctrlKey && e.key === "f")
+      ) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("contextmenu", disableContext);
+    document.addEventListener("keydown", disableShortcuts);
+    return () => {
+      document.removeEventListener("contextmenu", disableContext);
+      document.removeEventListener("keydown", disableShortcuts);
+    };
+  }, []);
+
+  const handleServerConnected = async () => {
+    const saved = await getSavedNickname();
+    if (saved) {
+      setPage({ name: "sessions", nickname: saved });
+    } else {
+      setPage({ name: "nickname" });
+    }
+  };
+
+  if (page.name === "chat") {
+    return (
+      <ChatPage
+        sessionName={page.sessionName}
+        sessionKey={page.sessionKey}
+        nickname={page.nickname}
+        onLeaveSession={() => setPage({ name: "sessions", nickname: page.nickname })}
+      />
+    );
   }
 
-  return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+  if (page.name === "sessions") {
+    return (
+      <SessionsPage
+        nickname={page.nickname}
+        onDisconnect={() => setPage({ name: "servers" })}
+        onNicknameChange={(newNickname) => setPage({ name: "sessions", nickname: newNickname })}
+        onConnectToSession={(sessionName, sessionKey) =>
+          setPage({ name: "chat", sessionName, sessionKey, nickname: page.nickname })
+        }
+        onOpenSettings={() => setPage({ name: "settings", nickname: page.nickname })}
+      />
+    );
+  }
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+  if (page.name === "nickname") {
+    return <NicknamePage onNicknameSet={(nickname) => setPage({ name: "sessions", nickname })} />;
+  }
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
-  );
+  if (page.name === "settings") {
+    return <SettingsPage onBack={() => setPage({ name: "sessions", nickname: page.nickname })} />;
+  }
+
+  return <ServersPage onOpenSessions={handleServerConnected} />;
 }
 
 export default App;

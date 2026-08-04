@@ -13,8 +13,11 @@
     "windows": [
       {
         "title": "quorthon",
-        "width": 800,
-        "height": 600
+        "width": 360,
+        "height": 628,
+        "resizable": false,
+        "maximizable": false,
+        "decorations": false
       }
     ],
     "security": {
