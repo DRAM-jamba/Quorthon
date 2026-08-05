@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import ServerCard from "../components/ServerCard";
 import {
   addServer,
-  connectServer,
+  createServer,
+  joinServer,
   getServers,
   removeServer,
   updateServer,
@@ -18,74 +19,94 @@ type ServersPageProps = {
 function ServersPage({ onOpenSessions }: ServersPageProps) {
   const [servers, setServers] = useState<Server[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddOrCreateForm, setShowAddOrCreateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [newServerName, setNewServerName] = useState("");
-  const [newServerIp, setNewServerIp] = useState("");
+  const [newServerTicket, setNewServerTicket] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getServers().then(setServers);
   }, []);
 
-  const isValidAddress = (ip: string): boolean => {
-    return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?$|^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/.test(ip.trim());
-  };
 
   const handleAddServer = async () => {
-    if (!newServerName.trim() && !newServerIp.trim()) {
-      setError("Name and address can't be empty.");
+    if (!newServerName.trim() && !newServerTicket.trim()) {
+      setError("Server Name and Ticket can't be empty.");
       return;
     }
     if (!newServerName.trim()) {
-      setError("Name can't be empty.");
+      setError("Server Name can't be empty.");
       return;
     }
-    if (!newServerIp.trim()) {
-      setError("Address can't be empty.");
+    if (!newServerTicket.trim()) {
+      setError("Server Ticket can't be empty.");
       return;
     }
-    if (!isValidAddress(newServerIp)) {
-      setError("Address is invalid.");
+    if (servers.some((s) => s.ticket === newServerTicket.trim())) {
+      setError("This server ticket already exists in your list.");
       return;
     }
-    if (servers.some((s) => s.ipAddress === newServerIp.trim())) {
-      setError("This server already exists.");
+    if (servers.some((s) => s.name === newServerName.trim())) {
+      setError("This server name already exists in your list.");
       return;
     }
     setError(null);
     try {
-      await addServer({ nickname: newServerName, ip: newServerIp });
+      await addServer({ nickname: newServerName, ticket: newServerTicket });
       const updated = await getServers();
       setServers(updated);
       setNewServerName("");
-      setNewServerIp("");
+      setNewServerTicket("");
       setShowAddForm(false);
     } catch (e: any) {
       setError("Connection failed: Invalid or inactive link.");
     }
   };
 
-  const handleConnect = async (ip: string) => {
+  const handleCreateServer = async () => {
+    if (!newServerName.trim()) {
+      setError("Server Name can't be empty.");
+      return;
+    }
+    if (servers.some((s) => s.name === newServerName.trim())) {
+      setError("This server Name already exists in your list.");
+      return;
+    }
     setError(null);
     try {
-      await connectServer(ip);
+      await createServer({ nickname: newServerName});
+      const updated = await getServers();
+      setServers(updated);
+      setNewServerName("");
+      setShowCreateForm(false);
+      } catch (e: any) {
+      setError("Connection failed: Invalid or inactive link.");
+    }
+  }
+
+  const handleConnect = async (ticket: string) => {
+    setError(null);
+    try {
+      await joinServer(ticket);
       onOpenSessions?.();
     } catch (e: any) {
       setError(e?.message ?? String(e));
     }
   };
 
-  const handleSaveEdit = async (ip: string, nickname: string) => {
-    const updated = await updateServer(ip, { nickname });
+  const handleSaveEdit = async (ticket: string, nickname: string) => {
+    const updated = await updateServer(ticket, { nickname });
     setServers((prev) =>
-      prev.map((s) => (s.ipAddress === ip ? updated : s))
+      prev.map((s) => (s.ticket === ticket ? updated : s))
     );
   };
 
-  const handleRemove = async (ip: string) => {
+  const handleRemove = async (ticket: string) => {
     setError(null);
     try {
-      await removeServer(ip);
-      setServers((prev) => prev.filter((s) => s.ipAddress !== ip));
+      await removeServer(ticket);
+      setServers((prev) => prev.filter((s) => s.ticket !== ticket));
     } catch (e: any) {
       setError(e?.message ?? String(e));
     }
@@ -120,18 +141,77 @@ function ServersPage({ onOpenSessions }: ServersPageProps) {
           )}
         </div>
 
-        {error && <p className="error-text">{error}</p>}
-
         <p className="trusted-text">Connect only to trusted servers</p>
 
-        {!showAddForm ? (
+        {error && <p className="error-text">{error}</p>}
+
+        {!showAddOrCreateForm ? (
           <button
             className="plus-button"
             type="button"
-            onClick={() => setShowAddForm(true)}
+            onClick={() => setShowAddOrCreateForm(true)}
           >
             +
           </button>
+        ) : !showAddForm && !showCreateForm ? (
+          <div className="add-server-box">
+            <div className="add-server-actions add-server-actions--stacked">
+              <button
+                className="settings-option-btn"
+                type="button"
+                onClick={() => setShowAddForm(true)}
+              >
+                add an existing server
+              </button>
+
+              <button
+                className="settings-option-btn"
+                type="button"
+                onClick={() => setShowCreateForm(true)}
+              >
+                create a new server
+              </button>
+
+              <button
+                className="settings-option-btn"
+                type="button"
+                onClick={() => setShowAddOrCreateForm(false)}
+              >
+                back
+              </button>
+            </div>
+          </div>
+        ) : showCreateForm ? (
+          <div className="add-server-box">
+            <label className="input-label">Preferred server name</label>
+            <input
+              className="server-input"
+              value={newServerName}
+              onChange={(e) => setNewServerName(e.target.value)}
+            />
+
+            <div className="add-server-actions">
+              <button
+                className="cancel-btn"
+                type="button"
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setNewServerName("");
+                  setError(null);
+                }}
+              >
+                back
+              </button>
+
+              <button
+                className="big-confirm-btn"
+                type="button"
+                onClick={handleCreateServer}
+              >
+                confirm
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="add-server-box">
             <label className="input-label">Preferred server name</label>
@@ -141,11 +221,11 @@ function ServersPage({ onOpenSessions }: ServersPageProps) {
               onChange={(e) => setNewServerName(e.target.value)}
             />
 
-              <label className="input-label">Address</label>
+            <label className="input-label">Ticket</label>
             <input
               className="server-input"
-              value={newServerIp}
-              onChange={(e) => setNewServerIp(e.target.value)}
+              value={newServerTicket}
+              onChange={(e) => setNewServerTicket(e.target.value)}
             />
 
             <div className="add-server-actions">
@@ -155,7 +235,7 @@ function ServersPage({ onOpenSessions }: ServersPageProps) {
                 onClick={() => {
                   setShowAddForm(false);
                   setNewServerName("");
-                  setNewServerIp("");
+                  setNewServerTicket("");
                   setError(null);
                 }}
               >

@@ -436,6 +436,11 @@ button {
   display: flex;
   gap: 10px;
 }
+
+.add-server-actions--stacked {
+  flex-direction: column;
+}
+
 .cancel-btn {
   width: 110px;
   height: 38px;
@@ -1713,7 +1718,7 @@ body {
 
 .settings-option-btn {
   flex: 1;
-  height: 34px;
+  min-height: 34px;
   border: 1px solid var(--border-secondary);
   border-radius: 6px;
   background: var(--bg-element);

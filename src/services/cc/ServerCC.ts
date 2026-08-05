@@ -5,7 +5,7 @@ const USE_MOCKS = true;
 let mockServers: Server[] = [
   {
     id: "mock-1",
-    ipAddress: "127.0.0.1:8080",
+    ticket: "127.0.0.1:8080",
     name: "Test Server",
     user_key: "mock-user-key-1",
   },
@@ -17,42 +17,55 @@ export async function getServers(): Promise<Server[]> {
   throw new Error("real backend not wired yet");
 }
 
-export async function addServer(args: { nickname: string; ip: string }): Promise<void> {
+export async function addServer(args: { nickname: string; ticket: string }): Promise<void> {
   if (USE_MOCKS) {
     mockServers.push({
       id: `mock-${Date.now()}`,
-      ipAddress: args.ip.trim(),
+      ticket: args.ticket.trim(),
       name: args.nickname.trim(),
       user_key: `mock-key-${Date.now()}`,
     });
     return;
   }
-  // real: return invoke("add_server", { ip: args.ip, nickname: args.nickname });
+  // real: return invoke("add_server", { ticket: args.ticket, nickname: args.nickname });
 }
 
-export async function connectServer(ip: string): Promise<void> {
+export async function createServer(args: { nickname: string}): Promise<void> {
   if (USE_MOCKS) {
-    console.log("[mock] connect to", ip);
+    mockServers.push({
+      id: `mock-${Date.now()}`,
+      ticket: `mock-${Date.now()}`,
+      name: args.nickname.trim(),
+      user_key: `mock-key-${Date.now()}`,
+    });
+    return;
+  }
+  // real: return invoke("add_server", { ticket: args.ticket, nickname: args.nickname });
+}
+
+export async function joinServer(ticket: string): Promise<void> {
+  if (USE_MOCKS) {
+    console.log("[mock] connect to", ticket);
     return; // pretend it worked → page calls onOpenSessions()
   }
-  // real: return invoke("connect_server", { ip });
+  // real: return invoke("connect_server", { ticket });
 }
 
-export async function updateServer(ip: string, args: { nickname: string }): Promise<Server> {
+export async function updateServer(ticket: string, args: { nickname: string }): Promise<Server> {
   if (USE_MOCKS) {
-    const s = mockServers.find((s) => s.ipAddress === ip);
+    const s = mockServers.find((s) => s.ticket === ticket);
     if (!s) throw new Error("not found");
     s.name = args.nickname;
     return { ...s };
   }
-  // real: return invoke("update_server", { ip, nickname: args.nickname });
+  // real: return invoke("update_server", { ticket, nickname: args.nickname });
   throw new Error("real backend not wired yet");
 }
 
-export async function removeServer(ip: string): Promise<void> {
+export async function removeServer(ticket: string): Promise<void> {
   if (USE_MOCKS) {
-    mockServers = mockServers.filter((s) => s.ipAddress !== ip);
+    mockServers = mockServers.filter((s) => s.ticket !== ticket);
     return;
   }
-  // real: return invoke("remove_server", { ip });
+  // real: return invoke("remove_server", { ticket });
 }

@@ -25,7 +25,7 @@ function ServerCard({
 
   const handleConfirmEdit = () => {
     if (!editedNickname.trim()) return;
-    onSaveEdit(server.ipAddress, editedNickname);
+    onSaveEdit(server.ticket, editedNickname);
     setIsEditing(false);
   };
 
@@ -72,7 +72,7 @@ function ServerCard({
 
       {expanded && (
         <div className="server-details">
-          <p className="server-ip">{server.ipAddress}</p>
+          <p className="server-ip">{server.ticket}</p>
 
           {!confirmForget ? (
             <div className="server-actions">
@@ -98,7 +98,7 @@ function ServerCard({
               <button
                 className="small-btn connect-btn"
                 type="button"
-                onClick={() => onConnect(server.ipAddress)}
+                onClick={() => onConnect(server.ticket)}
               >
                 connect
               </button>
@@ -112,7 +112,7 @@ function ServerCard({
                 type="button"
                 onClick={() => {
                   setConfirmForget(false);
-                  onRemove(server.ipAddress);
+                  onRemove(server.ticket);
                 }}
               >
                 <img src={confirmIcon} width="14" height="14" />
