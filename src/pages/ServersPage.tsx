@@ -42,6 +42,12 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
     getServers().then(setServers);
   }, []);
 
+  const resetForm = () => {
+    setNewServerName("");
+    setNewServerTicket("");
+    setKeyCopied(false);
+    setError(null);
+  };
 
   const handleAddServer = async () => {
     if (!newServerTicket.trim()) {
@@ -99,10 +105,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
   };
 
   const handleCloseGenerated = () => {
-    setNewServerTicket("");
-    setNewServerName("");
-    setNewServerTicket("");
-    setKeyCopied(false);
+    resetForm();
     setView("list");
   };
 
@@ -126,8 +129,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
   };
 
   const handleCancel = () => {
-    setNewServerName("");
-    setError(null);
+    resetForm();
     setView("list");
   };
 
@@ -143,17 +145,13 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
 
   const handleOpenCreateServer = () => {
     setShowPlusMenu(false);
-    setNewServerName("");
-    setNewServerTicket("");
-    setKeyCopied(false);
-    setError(null);
+    resetForm();
     setView("create");
   };
 
   const handleOpenAdd = () => {
     setShowPlusMenu(false);
-    setNewServerTicket("");
-    setError(null);
+    resetForm();
     setView("add");
   };
 
