@@ -17,30 +17,33 @@ export async function getServers(): Promise<Server[]> {
   throw new Error("real backend not wired yet");
 }
 
-export async function addServer(args: { nickname: string; ticket: string }): Promise<void> {
+export async function addServer(args: { ticket: string }): Promise<void> {
   if (USE_MOCKS) {
     mockServers.push({
       id: `mock-${Date.now()}`,
       ticket: args.ticket.trim(),
-      name: args.nickname.trim(),
+      name: `server-${args.ticket.trim().slice(0, 6)}`,  // fake "fetched" name for now
       user_key: `mock-key-${Date.now()}`,
     });
     return;
   }
-  // real: return invoke("add_server", { ticket: args.ticket, nickname: args.nickname });
+  // real: return invoke("add_server", { ticket: args.ticket });
+  throw new Error("real backend not wired yet");
 }
 
-export async function createServer(args: { nickname: string}): Promise<void> {
+export async function createServer(args: { nickname: string }): Promise<Server> {
   if (USE_MOCKS) {
-    mockServers.push({
+    const server: Server = {
       id: `mock-${Date.now()}`,
-      ticket: `mock-${Date.now()}`,
+      ticket: `mock-ticket-${Date.now()}`,
       name: args.nickname.trim(),
       user_key: `mock-key-${Date.now()}`,
-    });
-    return;
+    };
+    mockServers.push(server);
+    return server;
   }
-  // real: return invoke("add_server", { ticket: args.ticket, nickname: args.nickname });
+  throw new Error("real backend not wired yet");
+  // real: return invoke("create_server", { nickname: args.nickname });
 }
 
 export async function joinServer(ticket: string): Promise<void> {

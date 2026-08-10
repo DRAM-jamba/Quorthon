@@ -23,9 +23,7 @@ function NicknamePage({ onNicknameSet }: NicknamePageProps) {
     setError("");
 
     try {
-      // Send to the server so other users see the nickname immediately.
       await submitNickname(trimmed);
-      // Persist locally so this page is skipped on every future launch.
       await saveNickname(trimmed);
       onNicknameSet(trimmed);
     } catch {

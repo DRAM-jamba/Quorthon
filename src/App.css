@@ -67,7 +67,7 @@
   --text-members: #c0c0c0;
   --text-arrow: #d6d6d6;
   --text-nick: #7a7a7a;
-  --text-session: #a0a0a0;
+  --text-server: #a0a0a0;
   --text-key: #a9a9a9;
   --text-chat-ver: #6a6a6a;
   --text-separator: #6a6a6a;
@@ -130,7 +130,7 @@
   --text-members: #333333;
   --text-arrow: #444444;
   --text-nick: #666666;
-  --text-session: #555555;
+  --text-server: #555555;
   --text-key: #666666;
   --text-chat-ver: #888888;
   --text-separator: #888888;
@@ -394,12 +394,6 @@ button {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.server-edit-header {
-  padding: 8px 10px 0;
-  color: var(--text-header);
-  font-size: 14px;
-}
-
 .trusted-text {
   margin: 0 0 8px;
   text-align: center;
@@ -529,10 +523,22 @@ button {
   border: 1px solid var(--accent);
   border-radius: 6px;
   box-shadow: 0 0 8px var(--accent-glow);
-  margin-bottom: 12px;
+  padding-top: 14px;
+  padding-bottom: 8px;
   background: var(--bg-card);
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.server-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 6px;
+  padding: 0 10px 0;
+  margin-bottom: 20px;
+  color: var(--text-header);
+  font-size: 18px;
 }
 
 .add-server-box {
@@ -544,16 +550,14 @@ button {
   background: var(--bg-card);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-
-/* ── Sessions ────────────────────────────────────────────────── */
-.session-top-row {
+.server-top-row {
   display: flex;
   align-items: stretch;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.session-user-box {
+.server-user-box {
   flex: 1;
   height: 38px;
   border: 1px solid var(--border-secondary);
@@ -565,13 +569,13 @@ button {
   padding: 0 10px;
 }
 
-.session-plus-wrapper {
+.server-plus-wrapper {
   position: relative;
   width: 90px;
   flex-shrink: 0;
 }
 
-.session-plus-button {
+.server-plus-button {
   width: 90px;
   height: 38px;
   border: 1px solid var(--border-secondary);
@@ -582,13 +586,13 @@ button {
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-.session-plus-button:hover {
+.server-plus-button:hover {
   border-color: var(--accent);
     box-shadow: 0 0 8px var(--accent-glow);
   background: var(--bg-element2);
 }
 
-.session-plus-menu {
+.server-plus-menu {
   position: absolute;
   top: 0;
   right: 0;
@@ -601,7 +605,7 @@ button {
   box-shadow: 0 0 8px var(--accent-glow);
 }
 
-.session-plus-close {
+.server-plus-close {
   width: 100%;
   height: 28px;
   border: none;
@@ -615,7 +619,7 @@ button {
     justify-content: center;
 }
 
-.session-plus-option {
+.server-plus-option {
   width: 100%;
   height: 34px;
   border: none;
@@ -624,14 +628,14 @@ button {
     color: var(--text-header);
   cursor: pointer;
 }
-.session-plus-option:hover {
+.server-plus-option:hover {
   background: var(--bg-element2);
 }
 
-.session-plus-option.active {
+.server-plus-option.active {
   color: var(--accent);
 }
-.session-add-input {
+.server-add-input {
   width: 232px;
   height: 38px;
   border-radius: 6px;
@@ -646,13 +650,13 @@ button {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.session-add-row {
+.server-add-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.session-add-confirm-btn {
+.server-add-confirm-btn {
   flex: 1;
   height: 38px;
   width: 140px;
@@ -666,13 +670,13 @@ button {
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-.session-add-confirm-btn:hover {
+.server-add-confirm-btn:hover {
   border-color: #00cc77;
   color: var(--success);
     box-shadow: 0 0 6px var(--success-glow);
 }
 
-.session-delete-row {
+.server-delete-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -681,7 +685,7 @@ button {
   padding: 6px 8px;
 }
 
-.session-delete-text {
+.server-delete-text {
   flex: 1;
   color: var(--text-sub);
   text-align: center;
@@ -703,7 +707,7 @@ button {
   border-color: var(--accent);
 }
 
-.session-bottom-row {
+.server-bottom-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -793,7 +797,7 @@ button {
   margin-top: 6px;
 }
 
-.session-create-panels {
+.server-create-panels {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -804,6 +808,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-radius: 6px;
   padding: 6px 10px 0;
   color: var(--text-header);
   font-size: 14px;
@@ -862,15 +867,15 @@ button {
   padding-top: 70px;
 }
 
-.generated-session-box-preview {
+.generated-server-box-preview {
   width: 320px;
 }
 
-.session-sidebar {
+.server-sidebar {
   position: relative;
 }
 
-.session-content-area {
+.server-content-area {
   position: relative;
   flex: 1;
   min-height: 0;
@@ -879,43 +884,37 @@ button {
     overflow: hidden;
 }
 
-.session-create-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 25;
-  padding-top: 2px;
+.server-create-overlay {
+  border-radius: 6px;
 }
 
-.session-create-panels {
+.server-create-panels {
   display: flex;
   flex-direction: column;
   gap: 18px;
   margin-bottom: 0;
 }
 
-.session-list-hidden {
-  visibility: hidden;
+.server-list-hidden {
   pointer-events: none;
 }
 
-.create-session-box,
-.generated-session-box {
+.create-server-box,
+.generated-server-box {
   border: 1px solid var(--accent);
-  border-radius: 6px;
+  border-radius: 9px;
   background: var(--bg-card-alt);
   overflow: hidden;
   box-shadow: 0 0 8px var(--accent-glow);
 }
 
-.create-session-box .server-input {
+.create-server-box .server-input {
   margin: 6px 10px 12px;
   width: calc(100% - 20px);
 }
 
-.create-session-box .big-confirm-btn,
-.generated-session-box .big-confirm-btn {
+.create-server-box .big-confirm-btn,
+.generated-server-box .big-confirm-btn {
   display: block;
   width: calc(100% - 20px);
     margin: 0 10px 12px;
@@ -924,19 +923,19 @@ button {
   font-size: 16px;
 }
 
-.session-preview-arrow {
+.server-preview-arrow {
   font-size: 48px;
   color: var(--text-sub);
   line-height: 1;
   margin-top: 34px;
 }
 
-.generated-session-box-preview {
+.generated-server-box-preview {
   width: 320px;
   flex-shrink: 0;
 }
 
-.session-instructions-shifted {
+.server-instructions-shifted {
   margin-left: 90px;
   margin-top: 140px;
   font-size: 18px;
@@ -1001,7 +1000,7 @@ button {
 
 .chat-small-btn,
 .chat-settings-btn,
-.leave-session-btn {
+.leave-server-btn {
   width: 40px;
   height: 40px;
   border: 1px solid var(--border-secondary);
@@ -1015,7 +1014,7 @@ button {
   align-items: center;
     justify-content: center;
 }
-.leave-session-btn:hover {
+.leave-server-btn:hover {
   border-color: var(--danger);
     box-shadow: 0 0 8px var(--danger-glow-lg);
 }
@@ -1061,9 +1060,9 @@ button {
   background: var(--bg-topbar);
 }
 
-.chat-session-name {
+.chat-server-name {
   font-size: 14px;
-  color: var(--text-session);
+  color: var(--text-server);
   font-weight: 400;
   background: transparent;
   border: 1px solid transparent;
@@ -1077,7 +1076,7 @@ button {
     transition: border-color 0.2s ease, color 0.2s ease;
 }
 
-.chat-session-name:hover {
+.chat-server-name:hover {
   border-color: var(--border-secondary);
     color: var(--text-muted);
   }
@@ -1414,12 +1413,12 @@ button {
     white-space: nowrap;
 }
 
-.session-user-box-btn {
+.server-user-box-btn {
   cursor: pointer;
   text-align: left;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
-.session-user-box-btn:hover {
+.server-user-box-btn:hover {
   border-color: var(--accent);
     color: var(--text-sub);
 }
@@ -1982,8 +1981,8 @@ select.server-input {
 [data-theme="light"] .settings-btn img,
 [data-theme="light"] .tiny-square-btn img,
 [data-theme="light"] .icon-btn img,
-[data-theme="light"] .session-plus-button img,
-[data-theme="light"] .session-plus-close img,
+[data-theme="light"] .server-plus-button img,
+[data-theme="light"] .server-plus-close img,
 [data-theme="light"] .nickname-confirm-inline-btn img,
 [data-theme="light"] .titlebar-btn img,
 [data-theme="light"] .hotkey-set-btn img,

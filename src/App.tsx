@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import ServersPage from "./pages/ServersPage";
 import NicknamePage from "./pages/NicknamePage";
-import SessionsPage from "./pages/SessionsPage";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
 import { getSavedNickname } from "./services/localServices/NicknameService";
@@ -9,24 +8,27 @@ import { loadTheme, loadFont } from "./services/localServices/AppearanceService"
 import "./App.css";
 
 type Page =
-  | { name: "servers" }
+  | { name: "loading" }
   | { name: "nickname" }
-  | { name: "sessions"; nickname: string }
-  | { name: "chat"; sessionName: string; sessionKey: string; nickname: string }
+  | { name: "servers"; nickname: string }
+  | { name: "chat"; serverId: string; serverName: string; nickname: string }
   | { name: "settings"; nickname: string };
 
-// apply saved appearance on startup (replaces v1's loadAllSettings)
 document.documentElement.setAttribute("data-theme", loadTheme());
 document.documentElement.setAttribute("data-font", loadFont());
 
 function App() {
-  const [page, setPage] = useState<Page>({ name: "servers" });
+  const [page, setPage] = useState<Page>({ name: "loading" });
+
+  useEffect(() => {
+    getSavedNickname().then((saved) => {
+      setPage(saved ? { name: "servers", nickname: saved } : { name: "nickname" });
+    });
+  }, []);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ audio: true })
-      .then((stream) => {
-        stream.getTracks().forEach((track) => track.stop());
-      })
+      .then((stream) => stream.getTracks().forEach((track) => track.stop()))
       .catch(async () => {
         const { invoke } = await import("@tauri-apps/api/core");
         await invoke("reset_mic_permission").catch(() => {});
@@ -56,49 +58,40 @@ function App() {
     };
   }, []);
 
-  const handleServerConnected = async () => {
-    const saved = await getSavedNickname();
-    if (saved) {
-      setPage({ name: "sessions", nickname: saved });
-    } else {
-      setPage({ name: "nickname" });
-    }
-  };
+  // ── render: page routing lives here, at the top level ──
+  if (page.name === "loading") {
+    return null;
+  }
+
+  if (page.name === "nickname") {
+    return <NicknamePage onNicknameSet={(nickname) => setPage({ name: "servers", nickname })} />;
+  }
 
   if (page.name === "chat") {
     return (
       <ChatPage
-        sessionName={page.sessionName}
-        sessionKey={page.sessionKey}
+        sessionName={page.serverName}
+        sessionKey={page.serverId}
         nickname={page.nickname}
-        onLeaveSession={() => setPage({ name: "sessions", nickname: page.nickname })}
+        onLeaveSession={() => setPage({ name: "servers", nickname: page.nickname })}
       />
     );
-  }
-
-  if (page.name === "sessions") {
-    return (
-      <SessionsPage
-        nickname={page.nickname}
-        onDisconnect={() => setPage({ name: "servers" })}
-        onNicknameChange={(newNickname) => setPage({ name: "sessions", nickname: newNickname })}
-        onConnectToSession={(sessionName, sessionKey) =>
-          setPage({ name: "chat", sessionName, sessionKey, nickname: page.nickname })
-        }
-        onOpenSettings={() => setPage({ name: "settings", nickname: page.nickname })}
-      />
-    );
-  }
-
-  if (page.name === "nickname") {
-    return <NicknamePage onNicknameSet={(nickname) => setPage({ name: "sessions", nickname })} />;
   }
 
   if (page.name === "settings") {
-    return <SettingsPage onBack={() => setPage({ name: "sessions", nickname: page.nickname })} />;
+    return <SettingsPage onBack={() => setPage({ name: "servers", nickname: page.nickname })} />;
   }
 
-  return <ServersPage onOpenSessions={handleServerConnected} />;
+  return (
+    <ServersPage
+      nickname={page.nickname}
+      onOpenServer={(serverId, serverName) =>
+        setPage({ name: "chat", serverId, serverName, nickname: page.nickname })
+      }
+      onNicknameChange={(newNickname) => setPage({ name: "servers", nickname: newNickname })}
+      onOpenSettings={() => setPage({ name: "settings", nickname: page.nickname })}
+    />
+  );
 }
 
 export default App;

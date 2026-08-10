@@ -35,16 +35,16 @@ function ServerCard({
         <div className="server-edit-header">
           <span>Preferred server name</span>
         </div>
-        <div className="edit-box">
+        <div className="server-add-row">
           <input
-            className="server-edit-input"
+            className="server-add-input"
             value={editedNickname}
             onChange={(e) => setEditedNickname(e.target.value)}
             placeholder="Server name"
             autoFocus
           />
           <button
-            className="small-btn connect-btn"
+            className="server-add-confirm-btn"
             type="button"
             onClick={handleConfirmEdit}
           >
@@ -104,8 +104,8 @@ function ServerCard({
               </button>
             </div>
           ) : (
-            <div className="session-delete-row">
-              <span className="session-delete-text">forget server?</span>
+            <div className="server-delete-row">
+              <span className="server-delete-text">forget server?</span>
 
               <button
                 className="icon-btn"

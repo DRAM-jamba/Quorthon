@@ -352,10 +352,10 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
               </button>
 
               <button
-                className="leave-session-btn"
+                className="leave-server-btn"
                 type="button"
                 onClick={handleLeaveSession}
-                title="Leave Session"
+                title="Leave Server"
               >
                 <img src={exitIcon} width="16" height="16" />
               </button>
@@ -366,12 +366,12 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
         {/* Main chat area */}
         <main className="chat-main">
           <div className="chat-topbar">
-            <div className="chat-session-key-wrapper">
+            <div className="chat-server-key-wrapper">
               <button
-                className="chat-session-name"
+                className="chat-server-name"
                 type="button"
                 onClick={handleCopySessionKey}
-                title="Click to copy session key"
+                title="Click to copy server ticket"
               >
                 {sessionName}
               </button>
@@ -380,7 +380,7 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
             {/* Copied toast */}
             {copied && (
               <div className="copy-toast">
-                session key copied!
+                server ticket copied!
               </div>
             )}
 
