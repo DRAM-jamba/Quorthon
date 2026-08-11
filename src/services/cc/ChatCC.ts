@@ -38,11 +38,9 @@ export async function sendMessage(content: string): Promise<void> {
 export async function subscribeToMemberUpdates(cb: (members: Member[]) => void): Promise<() => void> {
   if (USE_MOCKS) {
     membersCallback = cb;
-    // push a starting member list shortly after subscribing
-    setTimeout(() => cb([{ username: "me" }, { username: "friend_bob" }]), 300);
+    setTimeout(() => membersCallback?.([{ username: "me" }, { username: "friend_bob" }]), 300);
     return () => { membersCallback = null; };
   }
-  // real: return listen("members_updated", e => cb(e.payload)).then(...)
   return () => {};
 }
 

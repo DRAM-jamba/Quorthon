@@ -300,9 +300,9 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
           {view === "generated" && (
             <div className="server-create-overlay">
               <div className="generated-server-box">
-                <div className="server-edit-header">
-                  <span>Generated server ticket</span>
-                </div>
+                  <div className="server-generated-header">
+                      <span>Generated server ticket</span>
+                    </div>
 
                 <div className="generated-key-row" style={{ position: "relative" }}>
                   <button
