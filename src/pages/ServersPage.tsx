@@ -10,6 +10,7 @@ import {
   updateServer,
 } from "../services/cc/ServerCC";
 import type { Server } from "../types/server";
+
 import TitleBar from "../components/TitleBar";
 import logoIcon from "../assets/icons/logorgb.png";
 import settingsIcon from "../assets/icons/settingbtnicon.svg";
@@ -51,7 +52,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
 
   const handleAddServer = async () => {
     if (!newServerTicket.trim()) {
-      setError("Server Ticket can't be empty.");
+      setError("Server ticket can't be empty.");
       return;
     }
     if (servers.some((s) => s.ticket === newServerTicket.trim())) {
@@ -63,7 +64,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
       await addServer({ ticket: newServerTicket });
       const updated = await getServers();
       setServers(updated);
-      setNewServerTicket("");
+      resetForm();
       setView("list");
     } catch {
       setError("Connection failed: Invalid or inactive link.");
@@ -72,11 +73,11 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
 
   const handleCreateServer = async () => {
     if (!newServerName.trim()) {
-      setError("Server Name can't be empty.");
+      setError("Server name can't be empty.");
       return;
     }
     if (servers.some((s) => s.name === newServerName.trim())) {
-      setError("This server Name already exists in your list.");
+      setError("This server name already exists in your list.");
       return;
     }
     setError(null);
@@ -84,7 +85,6 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
       const created = await createServer({ nickname: newServerName });
       const updated = await getServers();
       setServers(updated);
-      setNewServerName("");
       setNewServerTicket(created.ticket);
       setKeyCopied(false);
       setView("generated");
@@ -123,9 +123,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
 
   const handleSaveEdit = async (ticket: string, nickname: string) => {
     const updated = await updateServer(ticket, { nickname });
-    setServers((prev) =>
-      prev.map((s) => (s.ticket === ticket ? updated : s))
-    );
+    setServers((prev) => prev.map((s) => (s.ticket === ticket ? updated : s)));
   };
 
   const handleCancel = () => {
@@ -273,31 +271,26 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
               <div className="server-create-panels">
                 <div className="create-server-box">
                   <div className="create-panel-header">
-                    <span>Preferred server name</span>
-                    <button
-                      className="panel-close-btn"
-                      type="button"
-                      onClick={handleCancel}
-                    >
+                    <div className="server-edit-header">
+                      <span>Preferred server name</span>
+                    </div>
+                    <button className="panel-close-btn" type="button" onClick={handleCancel}>
                       <img src={cancelIcon} width="16" height="16" />
                     </button>
                   </div>
+                  {error && <p className="error-text-create">{error}</p>}
                   <div className="server-add-row">
                     <input
                       className="server-add-input"
                       value={newServerName}
                       onChange={(e) => setNewServerName(e.target.value)}
+                      maxLength={32}
                       autoFocus
                     />
-                    <button
-                      className="server-add-confirm-btn"
-                      type="button"
-                      onClick={handleCreateServer}
-                    >
+                    <button className="server-add-confirm-btn" type="button" onClick={handleCreateServer}>
                       confirm
                     </button>
                   </div>
-                  {error && <p className="error-text">{error}</p>}
                 </div>
               </div>
             </div>
@@ -306,17 +299,16 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
           {view === "generated" && (
             <div className="server-create-overlay">
               <div className="generated-server-box">
-                <div className="create-panel-header">
+                <div className="server-edit-header">
                   <span>Generated server ticket</span>
                 </div>
 
                 <div className="generated-key-row" style={{ position: "relative" }}>
                   <button
-                    className="generated-key-text"
+                    className="generated-key-text generated-key-btn"
                     type="button"
                     onClick={handleCopyGeneratedKey}
                     title="Click to copy server ticket"
-                    style={{ cursor: "pointer", background: "none", border: "none", padding: 0, textAlign: "left", width: "100%" }}
                   >
                     {newServerTicket}
                   </button>
@@ -344,15 +336,14 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
               <div className="server-create-panels">
                 <div className="create-server-box">
                   <div className="create-panel-header">
-                    <span>Server ticket</span>
-                    <button
-                      className="panel-close-btn"
-                      type="button"
-                      onClick={handleCancel}
-                    >
+                    <div className="server-edit-header">
+                      <span>Server ticket</span>
+                    </div>
+                    <button className="panel-close-btn" type="button" onClick={handleCancel}>
                       <img src={cancelIcon} width="16" height="16" />
                     </button>
                   </div>
+                  {error && <p className="error-text-create">{error}</p>}
                   <div className="server-add-row">
                     <input
                       className="server-add-input"
@@ -360,16 +351,10 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
                       onChange={(e) => setNewServerTicket(e.target.value)}
                       autoFocus
                     />
-
-                    <button
-                      className="server-add-confirm-btn"
-                      type="button"
-                      onClick={handleAddServer}
-                    >
+                    <button className="server-add-confirm-btn" type="button" onClick={handleAddServer}>
                       confirm
                     </button>
                   </div>
-                  {error && <p className="error-text">{error}</p>}
                 </div>
               </div>
             </div>
@@ -385,6 +370,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
               <ServerCard
                 key={server.id}
                 server={server}
+                existingNames={servers.map((s) => s.name)}
                 onSaveEdit={handleSaveEdit}
                 onRemove={handleRemove}
                 onConnect={handleConnect}

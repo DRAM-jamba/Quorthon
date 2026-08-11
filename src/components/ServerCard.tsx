@@ -7,6 +7,7 @@ import cancelIcon from "../assets/icons/cancelbtnicon.svg";
 
 type ServerCardProps = {
   server: Server;
+  existingNames: string[];
   onSaveEdit: (ip: string, nickname: string) => void;
   onRemove: (ip: string) => void;
   onConnect: (ip: string) => void;
@@ -14,6 +15,7 @@ type ServerCardProps = {
 
 function ServerCard({
   server,
+  existingNames,
   onSaveEdit,
   onRemove,
   onConnect,
@@ -22,10 +24,20 @@ function ServerCard({
   const [isEditing, setIsEditing] = useState(false);
   const [confirmForget, setConfirmForget] = useState(false);
   const [editedNickname, setEditedNickname] = useState(server.name);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const handleConfirmEdit = () => {
-    if (!editedNickname.trim()) return;
-    onSaveEdit(server.ticket, editedNickname);
+    const trimmed = editedNickname.trim();
+    if (!trimmed) {
+      setEditError("Server Name can't be empty.");
+      return;
+    }
+    if (existingNames.some((n) => n === trimmed && n !== server.name)) {
+      setEditError("This server name already exists in your list.");
+      return;
+    }
+    setEditError(null);
+    onSaveEdit(server.ticket, trimmed);
     setIsEditing(false);
   };
 
@@ -35,12 +47,14 @@ function ServerCard({
         <div className="server-edit-header">
           <span>Preferred server name</span>
         </div>
+        <p className="error-text edit-error-slot">{editError ?? ""}</p>
         <div className="server-add-row">
           <input
             className="server-add-input"
             value={editedNickname}
             onChange={(e) => setEditedNickname(e.target.value)}
             placeholder="Server name"
+            maxLength={22}
             autoFocus
           />
           <button
@@ -81,6 +95,7 @@ function ServerCard({
                 type="button"
                 onClick={() => {
                   setEditedNickname(server.name);
+                  setEditError(null);
                   setIsEditing(true);
                 }}
               >

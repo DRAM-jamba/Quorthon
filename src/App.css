@@ -186,7 +186,24 @@ button {
 /* ── Pages ───────────────────────────────────────────────────── */
 .error-text {
   margin-left: 12px;
+  color: var(--error);
+  font-size: 12px;
 }
+
+.error-text-create {
+  margin: 0 0 0 12px;
+  color: var(--error);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+
+.edit-error-slot {
+  min-height: 16px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 .servers-page {
   display: block;
   width: 100%;
@@ -523,8 +540,8 @@ button {
   border: 1px solid var(--accent);
   border-radius: 6px;
   box-shadow: 0 0 8px var(--accent-glow);
-  padding-top: 14px;
-  padding-bottom: 8px;
+  padding-top: 12px;
+  margin-bottom: 12px;
   background: var(--bg-card);
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -535,8 +552,8 @@ button {
   align-items: center;
   justify-content: space-between;
   border-radius: 6px;
-  padding: 0 10px 0;
-  margin-bottom: 20px;
+  padding-left: 10px;
+  margin-bottom: 12px;
   color: var(--text-header);
   font-size: 18px;
 }
@@ -809,7 +826,7 @@ button {
   align-items: center;
   justify-content: space-between;
   border-radius: 6px;
-  padding: 6px 10px 0;
+  padding: 6px 0px 0;
   color: var(--text-header);
   font-size: 14px;
 }
@@ -844,6 +861,15 @@ button {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.generated-key-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  width: 100%;
 }
 
 .copy-key-btn {
