@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { APP_VERSION } from "../version";
 import { submitNickname, saveNickname } from "../services/localServices/NicknameService";
 import TitleBar from "../components/TitleBar";
 import logoIcon from "../assets/icons/logorgb.png";
@@ -79,7 +80,7 @@ function NicknamePage({ onNicknameSet }: NicknamePageProps) {
     </div>
 
     <div className="sidebar-line bottom-line" />
-        <p className="version-text">ver. 0.69</p>
+        <p className="version-text">ver. {APP_VERSION}</p>
   </aside>
 </div>
   );

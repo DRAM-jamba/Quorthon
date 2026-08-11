@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { APP_VERSION } from "../version";
 import ServerCard from "../components/ServerCard";
 import { updateNickname } from "../services/localServices/NicknameService";
 import {
@@ -274,7 +275,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
                     <div className="server-edit-header">
                       <span>Preferred server name</span>
                     </div>
-                    <button className="panel-close-btn" type="button" onClick={handleCancel}>
+                    <button className="panel-close-btn server-edit-header" type="button" onClick={handleCancel}>
                       <img src={cancelIcon} width="16" height="16" />
                     </button>
                   </div>
@@ -339,7 +340,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
                     <div className="server-edit-header">
                       <span>Server ticket</span>
                     </div>
-                    <button className="panel-close-btn" type="button" onClick={handleCancel}>
+                    <button className="panel-close-btn server-edit-header" type="button" onClick={handleCancel}>
                       <img src={cancelIcon} width="16" height="16" />
                     </button>
                   </div>
@@ -412,7 +413,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
             </button>
           </div>
 
-          <p className="version-text">ver. 0.69</p>
+          <p className="version-text">ver. {APP_VERSION}</p>
         </div>
       </aside>
     </div>
