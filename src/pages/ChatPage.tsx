@@ -1,31 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import type { Message, Member } from "../types/message";
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 import SettingsPage from "./SettingsPage";
-import { listen } from "@tauri-apps/api/event";
-import { getHotkeyString } from "../services/localServices/HotkeysService";
+import { resizeForChatPage, resizeForServersPage } from "../services/localServices/WindowService";
+
 import {
-  joinServer,
+  mockActivity,
   sendMessage,
   leaveServer,
   subscribeToMessages,
   subscribeToMemberUpdates,
   subscribeToMemberEvents,
-} from "../services/cc/ChatCC";
-import { 
   joinVoiceChat, 
   leaveVoiceChat, 
 } from "../services/cc/ChatCC";
+
 import {  
   setMicMuted, 
   setDeafened as setServiceDeafened, 
   subscribeToVoiceList,
   setParticipantVolume,
 } from "../services/localServices/VoicechatService";
-import { loadMicHotkey, loadHeadphonesHotkey } from "../services/localServices/HotkeysService";
-import { resizeForChatPage, resizeForServersPage } from "../services/localServices/WindowService";
-import type { Message, Member } from "../types/message";
+
+
 import TitleBar from "../components/TitleBar";
 import micIcon from "../assets/icons/micbtnicon.svg";
 import micOffIcon from "../assets/icons/micoffbtnicon.svg";
@@ -58,25 +56,10 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
   const [deafened, setDeafened] = useState(false);
   const [expandedVoiceMember, setExpandedVoiceMember] = useState<string | null>(null);
   const [voiceVolumes, setVoiceVolumes] = useState<Record<string, number>>({});
-  const mutedRef = useRef(muted);
-  const deafenedRef = useRef(deafened);
-  const isInVoiceCallRef = useRef(isInVoiceCall);
 
   useEffect(() => {
     resizeForChatPage();
   }, []);
-
-  useEffect(() => {
-    mutedRef.current = muted;
-  }, [muted]);
-
-  useEffect(() => {
-    deafenedRef.current = deafened;
-  }, [deafened]);
-
-  useEffect(() => {
-    isInVoiceCallRef.current = isInVoiceCall;
-  }, [isInVoiceCall]);
 
   const appendMessage = (msg: Message) => {
     setMessages((prev) => {
@@ -110,8 +93,8 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
         if (!isMounted) return;
         unlistenFuncs = [unlistenMsgs, unlistenUserEvents, unlistenMembers, unlistenVoice];
         
-        await joinServer(ticket);
-        console.log("joinServer completed");
+        await mockActivity(ticket);
+        console.log("mockActivity completed");
       } catch (err) {
         console.error("Failed:", err);
         if (isMounted) {
@@ -125,80 +108,10 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
     return () => {
       isMounted = false;
       unlistenFuncs.forEach((unlisten) => unlisten());
+      leaveServer().catch(console.error); 
       leaveVoiceChat().catch(console.error);
     };
-  }, [serverName]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const micKey = loadMicHotkey() ?? "";
-      const headphonesKey = loadHeadphonesHotkey() ?? "";
-
-      if (micKey && getHotkeyString(e) === micKey) {
-        handleToggleMute();
-      }
-
-      if (headphonesKey && getHotkeyString(e) === headphonesKey) {
-        handleToggleDeafen();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [muted, deafened, isInVoiceCall]);
-
-  useEffect(() => {
-    const micKey = loadMicHotkey() ?? "";
-    const headphonesKey = loadHeadphonesHotkey() ?? "";
-
-    invoke("register_hotkeys", { micKey, headphonesKey }).catch(console.error);
-
-    const unlistenMic = listen("global_mic_hotkey", async () => {
-      const nextMuted = !mutedRef.current;
-
-      mutedRef.current = nextMuted;
-      setMuted(nextMuted);
-
-      if (!nextMuted && deafenedRef.current) {
-        deafenedRef.current = false;
-        setDeafened(false);
-
-        if (isInVoiceCallRef.current) {
-          await setServiceDeafened(false);
-        }
-      }
-
-      if (isInVoiceCallRef.current) {
-        await setMicMuted(nextMuted);
-      }
-    });
-
-    const unlistenHeadphones = listen("global_headphones_hotkey", async () => {
-      const nextDeafened = !deafenedRef.current;
-
-      deafenedRef.current = nextDeafened;
-      setDeafened(nextDeafened);
-
-      if (nextDeafened && !mutedRef.current) {
-        mutedRef.current = true;
-        setMuted(true);
-
-        if (isInVoiceCallRef.current) {
-          await setMicMuted(true);
-        }
-      }
-
-    if (isInVoiceCallRef.current) {
-      await setServiceDeafened(nextDeafened);
-    }
-  });
-
-    return () => {
-    invoke("unregister_hotkeys").catch(console.error);
-    unlistenMic.then((f) => f());
-    unlistenHeadphones.then((f) => f());
-  };
-  }, []);
+  }, [ticket]);
 
   const handleSend = async (content: string) => {
     await sendMessage(content);
@@ -300,7 +213,6 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
                           max={100}
                           value={voiceVolumes[username] ?? 100}
                           onChange={(e) => {
-                            console.log("slider changed", username, e.target.value);
                             const val = Number(e.target.value);
                             setVoiceVolumes(prev => ({ ...prev, [username]: val }));
                             setParticipantVolume(username, val);

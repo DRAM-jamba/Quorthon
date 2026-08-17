@@ -55,9 +55,9 @@ export async function subscribeToMemberEvents(cb: (msg: Message) => void): Promi
 }
 
 // --- server join/leave ---
-export async function joinServer(ticket: string): Promise<void> {
+export async function mockActivity(ticket: string): Promise<void> {
   if (USE_MOCKS) {
-    console.log("[mock] joinServer", ticket);
+    console.log("[mock] mockActivity", ticket);
     // system message: you joined
     setTimeout(() => memberEventCallback?.({
       authorUsername: "system",
@@ -80,7 +80,6 @@ export async function joinServer(ticket: string): Promise<void> {
     }, 8000);
     return;
   }
-  // real: return invoke("join_server", { ticket });
 }
 
 export async function leaveServer(): Promise<void> {
