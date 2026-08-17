@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import ServersPage from "./pages/ServersPage";
-import NicknamePage from "./pages/NicknamePage";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
 import { getSavedNickname } from "./services/localServices/NicknameService";
@@ -9,7 +8,6 @@ import "./App.css";
 
 type Page =
   | { name: "loading" }
-  | { name: "nickname" }
   | { name: "servers"; nickname: string }
   | { name: "chat"; serverId: string; serverName: string; nickname: string }
   | { name: "settings"; nickname: string };
@@ -22,7 +20,7 @@ function App() {
 
   useEffect(() => {
     getSavedNickname().then((saved) => {
-      setPage(saved ? { name: "servers", nickname: saved } : { name: "nickname" });
+      setPage({ name: "servers", nickname: saved ?? "" });
     });
   }, []);
 
@@ -63,9 +61,6 @@ function App() {
     return null;
   }
 
-  if (page.name === "nickname") {
-    return <NicknamePage onNicknameSet={(nickname) => setPage({ name: "servers", nickname })} />;
-  }
 
   if (page.name === "chat") {
     return (

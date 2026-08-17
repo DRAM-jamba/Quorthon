@@ -16,7 +16,6 @@
         "width": 360,
         "height": 628,
         "resizable": false,
-        "maximizable": false,
         "decorations": false
       }
     ],

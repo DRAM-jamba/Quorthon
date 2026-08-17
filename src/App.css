@@ -1466,6 +1466,8 @@ button {
   flex: 1;
   height: 38px;
   margin: 0;
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow-sm);
 }
 
 .nickname-confirm-inline-btn {
@@ -1482,6 +1484,12 @@ button {
   display: flex;
   align-items: center;
     justify-content: center;
+}
+
+.nickname-locked {
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ── Disconnect ──────────────────────────────────────────────── */
@@ -1767,6 +1775,25 @@ body {
     color: var(--accent);
 }
 
+.settings-option-btn-remove-nickname {
+  background: transparent;
+  border: 1px solid var(--danger-border);
+  border-radius: 5px;
+  color: var(--danger-dim);
+  width: 294px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-option-btn-remove-nickname:hover {
+  border-color: var(--danger);
+  color: var(--danger-bright);
+  box-shadow: 0 0 6px var(--danger-glow);
+}
+
 .settings-slider {
   width: 100%;
   accent-color: var(--accent);
@@ -1963,26 +1990,38 @@ select.server-input {
 
 .settings-modal-overlay {
   position: absolute;
+  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: var(--overlay-bg);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 40px; /* might be a problem */
+  padding-bottom: 40px;
   z-index: 100;
+  box-sizing: border-box;
 }
 
 .settings-modal {
-  position: relative;
-  max-height: min(89vh, 900px);
-  overflow-y: hidden;
+  max-height: 100%;
+  cursor: default;
   background: var(--modal-bg);
-    border: 1px solid var(--border-secondary);
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
   box-shadow: 0 0 20px var(--shadow-modal);
-  }
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-modal .sidebar {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
   
 
 

@@ -20,6 +20,10 @@ export async function saveNickname(nickname: string): Promise<void> {
   localStorage.setItem("nickname", nickname);
 }
 
+export async function clearNickname(): Promise<void> {
+  localStorage.removeItem("nickname");
+}
+
 export async function getSavedNickname(): Promise<string | null> {
   return localStorage.getItem("nickname");
 }

@@ -1,7 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { APP_VERSION } from "../version";
 import ServerCard from "../components/ServerCard";
-import { updateNickname } from "../services/localServices/NicknameService";
+import { 
+  getSavedNickname,
+  saveNickname,
+  updateNickname
+
+ } from "../services/localServices/NicknameService";
 import {
   addServer,
   createServer,
@@ -29,6 +34,7 @@ type View = "list" | "create" | "generated" | "add";
 
 function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings }: ServersPageProps) {
   const [servers, setServers] = useState<Server[]>([]);
+  const [hasNickname, setHasNickname] = useState<boolean | null>(null);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState(nickname);
   const [view, setView] = useState<View>("list");
@@ -154,29 +160,35 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
     setView("add");
   };
 
-  const handleNicknameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleNicknameConfirm();
-    if (e.key === "Escape") {
-      setNicknameInput(nickname);
-      setIsEditingNickname(false);
-    }
-  };
-
   const handleNicknameConfirm = async () => {
     const trimmed = nicknameInput.trim();
     if (!trimmed) {
-      setError("Invalid nickname.");
       return;
     }
     try {
       await updateNickname(trimmed);
+      await saveNickname(trimmed);
       setError(null);
       setIsEditingNickname(false);
+      setHasNickname(true);
       onNicknameChange?.(trimmed);
     } catch {
       setError("Invalid nickname.");
     }
   };
+
+  useEffect(() => {
+  getSavedNickname().then((saved) => {
+    const exists = !!saved && saved.trim() !== "";
+    setHasNickname(exists);
+    if (!exists) {
+      setIsEditingNickname(true);
+      setNicknameInput(""); 
+    } else {
+      setNicknameInput(saved!);
+    }
+  });
+}, []);
 
   const isFormView = view === "create" || view === "add" || view === "generated";
 
@@ -199,7 +211,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
                   className="server-input nickname-edit-input"
                   value={nicknameInput}
                   onChange={(e) => setNicknameInput(e.target.value)}
-                  onKeyDown={handleNicknameKeyDown}
+                  placeholder="enter your nickname"
                   autoFocus
                   maxLength={32}
                 />
@@ -226,7 +238,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
               </button>
             )}
 
-            <div className="server-plus-wrapper">
+            <div className={`server-plus-wrapper ${!hasNickname ? "nickname-locked" : ""}`}>
               {!showPlusMenu ? (
                 <button
                   className="server-plus-button"
@@ -266,7 +278,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
           </div>
         )}
 
-        <div className="server-content-area">
+        <div className={`server-content-area ${!hasNickname ? "nickname-locked" : ""}`}>
           {view === "create" && (
             <div className="server-create-overlay">
               <div className="server-create-panels">
@@ -382,7 +394,7 @@ function ServersPage({ nickname, onOpenServer, onNicknameChange, onOpenSettings 
 
         <div className="sidebar-line bottom-line" />
 
-        <div className="server-bottom-row">
+        <div className={`server-bottom-row ${!hasNickname ? "nickname-locked" : ""}`}>
           <div className="left-bottom-buttons">
             <div className="help-popup-wrapper">
               <button

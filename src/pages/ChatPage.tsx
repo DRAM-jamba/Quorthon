@@ -96,10 +96,7 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
         await mockActivity(ticket);
         console.log("mockActivity completed");
       } catch (err) {
-        console.error("Failed:", err);
-        if (isMounted) {
-          console.error("Failed to connect to server:", err);
-        }
+        console.error("Failed to connect to server:", err);
       }
     };
 
@@ -321,7 +318,14 @@ function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps
       {showSettings && (
         <div className="settings-modal-overlay" onClick={() => setShowSettings(false)}>
           <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
-            <SettingsPage onBack={() => setShowSettings(false)} hideHeader />
+            <SettingsPage
+              onBack={() => setShowSettings(false)}
+              onNicknameCleared={() => {
+                setShowSettings(false);
+                handleLeaveServer();
+              }}
+              hideHeader
+            />
           </div>
         </div>
       )}

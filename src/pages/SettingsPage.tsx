@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import TitleBar from "../components/TitleBar";
-import logoIcon from "../assets/icons/logorgb.png";
-import arrowUpIcon from "../assets/icons/arrowupicon.svg";
-import arrowDownIcon from "../assets/icons/arrowdownicon.svg";
+
 import {
   saveMicDevice, loadMicDevice,
   saveMicLevel, loadMicLevel,
@@ -12,24 +9,36 @@ import {
   updateSpeakerLevel, updateSpeakerDevice,
   setUseRnnoise, isInVoiceChat, reconnectMic
 } from "../services/localServices/VoicechatService";
+
 import {
   saveTheme, loadTheme,
   saveFont, loadFont,
   type Theme, type Font,
 } from "../services/localServices/AppearanceService";
+
 import {
   saveMicHotkey, loadMicHotkey, getHotkeyString,
   saveHeadphonesHotkey, loadHeadphonesHotkey,
 } from "../services/localServices/HotkeysService";
+
+import { clearNickname } from "../services/localServices/NicknameService";
+
 import { invoke } from "@tauri-apps/api/core";
 
+import TitleBar from "../components/TitleBar";
+import logoIcon from "../assets/icons/logorgb.png";
+import arrowUpIcon from "../assets/icons/arrowupicon.svg";
+import arrowDownIcon from "../assets/icons/arrowdownicon.svg";
+import confirmIcon from "../assets/icons/confirmbtnicon.svg";
+import cancelIcon from "../assets/icons/cancelbtnicon.svg";
 
 type SettingsPageProps = {
   onBack: () => void;
+  onNicknameCleared?: () => void;
   hideHeader?: boolean;
 };
 
-function SettingsPage({ onBack, hideHeader = false }: SettingsPageProps) {
+function SettingsPage({ onBack, onNicknameCleared, hideHeader = false }: SettingsPageProps) {
   const [theme, setTheme] = useState<Theme>(loadTheme());
   const [font, setFont] = useState<Font>(loadFont());
   const [micDevice, setMicDevice] = useState(loadMicDevice());
@@ -44,6 +53,7 @@ function SettingsPage({ onBack, hideHeader = false }: SettingsPageProps) {
   const [micDropdownOpen, setMicDropdownOpen] = useState(false);
   const [speakerDropdownOpen, setSpeakerDropdownOpen] = useState(false);
   const [noiseSuppression, setNoiseSuppressionState] = useState(loadNoiseSuppression());
+  const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
     if (!listeningFor) return;
@@ -118,6 +128,16 @@ function SettingsPage({ onBack, hideHeader = false }: SettingsPageProps) {
   navigator.mediaDevices.addEventListener("devicechange", loadDevices);
   return () => navigator.mediaDevices.removeEventListener("devicechange", loadDevices);
   }, []);
+
+  const handleClearNickname = async () => {
+    await clearNickname();
+    setConfirmClear(false);
+    if (onNicknameCleared) {
+      onNicknameCleared();
+    } else {
+      onBack();
+    }
+  };
 
   return (
     <div className="servers-page">
@@ -399,6 +419,33 @@ function SettingsPage({ onBack, hideHeader = false }: SettingsPageProps) {
                   )}
                     </div>
               </div>
+            </div>
+          </div>
+          {/* Personal Data */}
+          <div className="server-card">
+            <div className="server-header">
+              <span className="server-title">Personal data</span>
+            </div>
+            <div className="server-details">
+              {!confirmClear ? (
+                <button
+                  className="settings-option-btn-remove-nickname"
+                  type="button"
+                  onClick={() => setConfirmClear(true)}
+                >
+                  Remove nickname
+                </button>
+              ) : (
+                <div className="server-delete-row">
+                  <span className="server-delete-text">Remove nickname?</span>
+                  <button className="icon-btn" type="button" onClick={handleClearNickname}>
+                    <img src={confirmIcon} width="14" height="14" />
+                  </button>
+                  <button className="icon-btn" type="button" onClick={() => setConfirmClear(false)}>
+                    <img src={cancelIcon} width="14" height="14" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
