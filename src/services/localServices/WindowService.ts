@@ -4,6 +4,6 @@ export async function resizeForChatPage(): Promise<void> {
   await getCurrentWindow().setSize(new LogicalSize(1100, 750));
 }
 
-export async function resizeForSessionsPage(): Promise<void> {
+export async function resizeForServersPage(): Promise<void> {
   await getCurrentWindow().setSize(new LogicalSize(360, 628));
 }

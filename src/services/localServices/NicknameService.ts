@@ -9,7 +9,7 @@ export async function submitNickname(nickname: string): Promise<void> {
   // real: return invoke("set_nickname", { nickname });
 }
 
-// updateNickname is the same host-facing action, used by SessionsPage's edit flow.
+// updateNickname is the same host-facing action, used by ServersPage's edit flow.
 // Alias it to submitNickname so there's one source of truth.
 export async function updateNickname(nickname: string): Promise<void> {
   return submitNickname(nickname);

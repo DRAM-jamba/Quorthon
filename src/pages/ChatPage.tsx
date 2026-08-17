@@ -3,12 +3,12 @@ import { invoke } from "@tauri-apps/api/core";
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 import SettingsPage from "./SettingsPage";
-import { joinSession } from "../services/cc/SessionCC";
 import { listen } from "@tauri-apps/api/event";
 import { getHotkeyString } from "../services/localServices/HotkeysService";
 import {
+  joinServer,
   sendMessage,
-  leaveSession,
+  leaveServer,
   subscribeToMessages,
   subscribeToMemberUpdates,
   subscribeToMemberEvents,
@@ -24,7 +24,7 @@ import {
   setParticipantVolume,
 } from "../services/localServices/VoicechatService";
 import { loadMicHotkey, loadHeadphonesHotkey } from "../services/localServices/HotkeysService";
-import { resizeForChatPage, resizeForSessionsPage } from "../services/localServices/WindowService";
+import { resizeForChatPage, resizeForServersPage } from "../services/localServices/WindowService";
 import type { Message, Member } from "../types/message";
 import TitleBar from "../components/TitleBar";
 import micIcon from "../assets/icons/micbtnicon.svg";
@@ -37,13 +37,13 @@ import callIcon from "../assets/icons/callbtnicon.svg";
 import endCallIcon from "../assets/icons/endcallbtnicon.svg";
 
 type ChatPageProps = {
-  sessionName: string;
-  sessionKey: string;
+  serverName: string;
+  ticket: string;
   nickname: string;
-  onLeaveSession: () => void;
+  onLeaveServer: () => void;
 };
 
-function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPageProps) {
+function ChatPage({ serverName, ticket, nickname, onLeaveServer }: ChatPageProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [voiceMembers, setVoiceMembers] = useState<string[]>([]);
@@ -92,8 +92,8 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
   }, [isInVoiceCall]);
 
   useEffect(() => {
-    if (!sessionKey) {
-      console.warn("ChatPage mounted without a key. Waiting...");
+    if (!ticket) {
+      console.warn("ChatPage mounted without a ticket. Waiting...");
       return;
     }
 
@@ -110,12 +110,12 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
         if (!isMounted) return;
         unlistenFuncs = [unlistenMsgs, unlistenUserEvents, unlistenMembers, unlistenVoice];
         
-        await joinSession(sessionKey);
-        console.log("joinSession completed");
+        await joinServer(ticket);
+        console.log("joinServer completed");
       } catch (err) {
         console.error("Failed:", err);
         if (isMounted) {
-          console.error("Failed to connect to session:", err);
+          console.error("Failed to connect to server:", err);
         }
       }
     };
@@ -127,7 +127,7 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
       unlistenFuncs.forEach((unlisten) => unlisten());
       leaveVoiceChat().catch(console.error);
     };
-  }, [sessionName]);
+  }, [serverName]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -204,15 +204,15 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
     await sendMessage(content);
   };
 
-  const handleLeaveSession = async () => {
+  const handleLeaveServer = async () => {
     await leaveVoiceChat();
-    await leaveSession();
-    await resizeForSessionsPage();
-    onLeaveSession(); 
+    await leaveServer();
+    await resizeForServersPage();
+    onLeaveServer(); 
   };
 
-  const handleCopySessionKey = async () => {
-    await navigator.clipboard.writeText(sessionKey);
+  const handleCopyTicket = async () => {
+    await navigator.clipboard.writeText(ticket);
     setCopied(true);
     if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
     copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
@@ -225,7 +225,7 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
       setIsConnecting(false);
     } else {
       setIsConnecting(true);
-      await joinVoiceChat(sessionKey);
+      await joinVoiceChat(ticket);
       setIsInVoiceCall(true);
       await setMicMuted(muted);
       await setServiceDeafened(deafened);
@@ -354,7 +354,7 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
               <button
                 className="leave-server-btn"
                 type="button"
-                onClick={handleLeaveSession}
+                onClick={handleLeaveServer}
                 title="Leave Server"
               >
                 <img src={exitIcon} width="16" height="16" />
@@ -370,10 +370,10 @@ function ChatPage({ sessionName, sessionKey, nickname, onLeaveSession }: ChatPag
               <button
                 className="chat-server-name"
                 type="button"
-                onClick={handleCopySessionKey}
+                onClick={handleCopyTicket}
                 title="Click to copy server ticket"
               >
-                {sessionName}
+                {serverName}
               </button>
             </div>
 

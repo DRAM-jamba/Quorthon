@@ -54,14 +54,14 @@ export async function subscribeToMemberEvents(cb: (msg: Message) => void): Promi
   return () => {};
 }
 
-// --- session join/leave ---
-export async function joinSession(sessionKey: string): Promise<void> {
+// --- server join/leave ---
+export async function joinServer(ticket: string): Promise<void> {
   if (USE_MOCKS) {
-    console.log("[mock] joinSession", sessionKey);
+    console.log("[mock] joinServer", ticket);
     // system message: you joined
     setTimeout(() => memberEventCallback?.({
       authorUsername: "system",
-      content: "friend_bob joined the session",
+      content: "friend_bob joined the server",
       timestamp: new Date().toLocaleTimeString(),
       date: new Date().toISOString().slice(0, 10),
       id: `sys-${Date.now()}`,
@@ -80,22 +80,22 @@ export async function joinSession(sessionKey: string): Promise<void> {
     }, 8000);
     return;
   }
-  // real: return invoke("join_session", { sessionKey });
+  // real: return invoke("join_server", { ticket });
 }
 
-export async function leaveSession(): Promise<void> {
+export async function leaveServer(): Promise<void> {
   if (USE_MOCKS) {
     if (friendTimer) { clearInterval(friendTimer); friendTimer = null; }
-    console.log("[mock] leaveSession");
+    console.log("[mock] leaveServer");
     return;
   }
-  // real: return invoke("leave_session");
+  // real: return invoke("leave_server");
 }
 
 // --- voice join/leave (host-side: joining the voice channel) ---
-export async function joinVoiceChat(sessionKey: string): Promise<void> {
-  if (USE_MOCKS) { console.log("[mock] joinVoiceChat", sessionKey); return; }
-  // real: return invoke("join_voice", { sessionKey });
+export async function joinVoiceChat(ticket: string): Promise<void> {
+  if (USE_MOCKS) { console.log("[mock] joinVoiceChat", ticket); return; }
+  // real: return invoke("join_voice", { ticket });
 }
 
 export async function leaveVoiceChat(): Promise<void> {

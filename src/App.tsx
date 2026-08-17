@@ -70,10 +70,10 @@ function App() {
   if (page.name === "chat") {
     return (
       <ChatPage
-        sessionName={page.serverName}
-        sessionKey={page.serverId}
+        serverName={page.serverName}
+        ticket={page.serverId}
         nickname={page.nickname}
-        onLeaveSession={() => setPage({ name: "servers", nickname: page.nickname })}
+        onLeaveServer={() => setPage({ name: "servers", nickname: page.nickname })}
       />
     );
   }

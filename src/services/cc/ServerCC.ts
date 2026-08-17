@@ -49,7 +49,7 @@ export async function createServer(args: { nickname: string }): Promise<Server> 
 export async function joinServer(ticket: string): Promise<void> {
   if (USE_MOCKS) {
     console.log("[mock] connect to", ticket);
-    return; // pretend it worked → page calls onOpenSessions()
+    return; // pretend it worked → page calls onOpenServer()
   }
   // real: return invoke("connect_server", { ticket });
 }
